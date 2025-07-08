@@ -1,0 +1,31 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar repositorio
+      uses: actions/checkout@v3
+
+    - name: Instalar dependencias
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip python3-setuptools python3-venv zip unzip openjdk-11-jdk libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev libncurses5-dev libgdbm-dev liblzma-dev autoconf automake libtool build-essential git
+        pip install --upgrade pip
+        pip install cython "setuptools<60" buildozer
+
+    - name: Compilar APK
+      run: |
+        buildozer android debug
+
+    - name: Subir APK como artefacto
+      uses: actions/upload-artifact@v3
+      with:
+        name: llamadascontrol.apk
+        path: bin/*.apk
