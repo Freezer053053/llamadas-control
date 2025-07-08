@@ -23,8 +23,11 @@ jobs:
         sudo apt update
         sudo apt install -y python3-pip python3-setuptools python3-venv zip unzip openjdk-11-jdk libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev libncurses5-dev libgdbm-dev liblzma-dev autoconf automake libtool libtool-bin m4 build-essential git
         export ACLOCAL_PATH=/usr/share/aclocal
+        export LIBTOOLIZE=libtoolize
+        export PATH="/usr/share/libtool/build-aux:$PATH"
         pip install --upgrade pip
         pip install cython "setuptools<60" buildozer
+
 
 
     - name: Compilar APK
