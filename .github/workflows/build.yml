@@ -9,7 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/kivy/buildozer:stable
+      image: kivy/buildozer:latest
+
 
     steps:
     - name: Clonar repositorio
