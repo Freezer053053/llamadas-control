@@ -13,6 +13,11 @@ jobs:
     - name: Clonar repositorio
       uses: actions/checkout@v3
 
+    - name: Usar Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
     - name: Instalar dependencias
       run: |
         sudo apt update
@@ -29,16 +34,27 @@ jobs:
       run: |
         buildozer android release
 
-    - name: Firmar APK
+    - name: Alinear APK con zipalign
+      run: |
+        ZIPALIGNED_APK=bin/llamadascontrol-aligned.apk
+        zipalign -v -p 4 bin/*.apk $ZIPALIGNED_APK
+        mv $ZIPALIGNED_APK bin/llamadascontrol-release.apk
+
+    - name: Firmar APK con jarsigner
       run: |
         jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
           -keystore ~/.keystores/my-release-key.keystore \
           -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
           -keypass "${{ secrets.KEY_PASSWORD }}" \
-          bin/*.apk "${{ secrets.KEY_ALIAS }}"
+          bin/llamadascontrol-release.apk "${{ secrets.KEY_ALIAS }}"
+
+    - name: Verificar firma con apksigner
+      run: |
+        sudo apt install -y apksigner
+        apksigner verify bin/llamadascontrol-release.apk
 
     - name: Subir APK firmado
       uses: actions/upload-artifact@v4
       with:
         name: llamadascontrol-release.apk
-        path: bin/*.apk
+        path: bin/llamadascontrol-release.apk
