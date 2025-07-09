@@ -1,3 +1,10 @@
+name: Build and Sign APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,15 +15,29 @@ jobs:
     - name: Clonar repositorio
       uses: actions/checkout@v3
 
-    - name: Compilar APK
+    - name: Restaurar keystore desde secreto
       run: |
-        buildozer android debug
+        mkdir -p ~/.keystores
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ~/.keystores/my-release-key.keystore
+
+    - name: Compilar APK en modo release
+      run: |
+        buildozer android release
+
+    - name: Firmar APK
+      run: |
+        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
+          -keystore ~/.keystores/my-release-key.keystore \
+          -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+          -keypass "${{ secrets.KEY_PASSWORD }}" \
+          bin/*.apk "${{ secrets.KEY_ALIAS }}"
 
     - name: Verificar si el APK fue generado
-      run: ls -lh bin || echo "No se encontr� el APK"
+      run: ls -lh bin || echo "No se encontró el APK"
 
-    - name: Subir APK como artefacto
+    - name: Subir APK firmado
       uses: actions/upload-artifact@v4
       with:
-        name: llamadascontrol.apk
+        name: llamadascontrol-release.apk
         path: bin/*.apk
+
