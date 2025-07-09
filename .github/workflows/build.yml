@@ -8,13 +8,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: kivy/buildozer:latest
-
 
     steps:
     - name: Clonar repositorio
       uses: actions/checkout@v3
+
+    - name: Instalar dependencias
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip python3-setuptools python3-venv zip unzip openjdk-11-jdk libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev libncurses5-dev libgdbm-dev liblzma-dev autoconf automake libtool libtool-bin m4 build-essential git
+        pip install --upgrade pip
+        pip install cython "setuptools<60" buildozer
 
     - name: Restaurar keystore desde secreto
       run: |
@@ -32,9 +36,6 @@ jobs:
           -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
           -keypass "${{ secrets.KEY_PASSWORD }}" \
           bin/*.apk "${{ secrets.KEY_ALIAS }}"
-
-    - name: Verificar si el APK fue generado
-      run: ls -lh bin || echo "No se encontró el APK"
 
     - name: Subir APK firmado
       uses: actions/upload-artifact@v4
