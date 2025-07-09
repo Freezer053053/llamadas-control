@@ -6,7 +6,7 @@ package.domain = org.test
 source.dir = .
 source.include_exts = py,kv,png,jpg,atlas
 version = 0.1
-requirements = python3crystax,kivy
+requirements = hostpython3,kivy
 orientation = portrait
 fullscreen = 0
 
@@ -20,5 +20,6 @@ android.copy_libs = 1
 
 [buildozer]
 build_dir = .buildozer
+p4a.branch = develop
 log_level = 2
 warn_on_root = 1
